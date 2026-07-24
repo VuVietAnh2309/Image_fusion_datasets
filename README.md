@@ -16,7 +16,7 @@ functional image and its anatomical counterpart share the **same file name** (e.
 |---|---|---|---|---|---|---|---|
 | **PET–MRI**   | PET (pseudo-colour, functional)   | MRI (grayscale) | 215 | 30 | 24 | Harvard Whole Brain Atlas | ✓ |
 | **SPECT–MRI** | SPECT (pseudo-colour, functional) | MRI (grayscale) | 303 | 30 | 24 | Harvard Whole Brain Atlas | ✓ |
-| **PET–CT**    | PET (grayscale, functional)       | CT (grayscale)  | —   | —  | 56 | TCIA Soft-Tissue-Sarcoma  | ✓ (external) |
+| **PET–CT**    | PET (grayscale, functional)       | CT (grayscale)  | 149 | —  | 56 | TCIA Soft-Tissue-Sarcoma  | ✓ (external) |
 | **CT–MRI**    | CT (grayscale)                    | MRI (grayscale) | 160 | —  | 24 | Harvard Whole Brain Atlas | — |
 
 - **PET–MRI** and **SPECT–MRI** are the *primary* brain datasets, drawn from the Harvard Whole Brain
@@ -24,7 +24,10 @@ functional image and its anatomical counterpart share the **same file name** (e.
   Alzheimer's disease, Huntington's disease, cerebral metastases and glioma).
 - **PET–CT** is a *held-out external cohort* from a different repository and body region (pelvis/thigh
   soft-tissue sarcoma), used only as a frozen-configuration generalization test. Both of its modalities
-  are grayscale (raw SUV / Hounsfield intensities). It has **no** train/val split.
+  are grayscale (raw SUV / Hounsfield intensities). Its **`test/`** split is the **56** patient-balanced
+  slices reported in the paper; **`train/`** is the remaining **149** tumour slices (205 − 56). Note that
+  CoRe-Fusion never trains, so this split is provided only for external users who wish to fit their own
+  models on this cohort.
 - **CT–MRI** is an *anatomical–anatomical* pair (both grayscale) from the Harvard atlas. It is **not used**
   in the CoRe-Fusion paper — the method targets functional–anatomical fusion — and is included here only
   for dataset-management convenience. It has no validation split.
@@ -50,9 +53,9 @@ CoRe-Fusion_datasets/
 │   ├── train/{SPECT, MRI}   303 pairs
 │   ├── val/{SPECT, MRI}      30 pairs
 │   └── test/{SPECT, MRI}     24 pairs
-├── PET-CT/                   (external test only)
-│   ├── PET/  56
-│   └── CT/   56
+├── PET-CT/                   (external; test = 56 used in the paper)
+│   ├── train/{PET, CT}      149 pairs   (remaining tumour slices, 205 − 56)
+│   └── test/{PET, CT}        56 pairs   (paper's patient-balanced subsample)
 └── CT-MRI/                   (not used in the paper; provided for completeness)
     ├── train/{CT, MRI}      160 pairs
     └── test/{CT, MRI}        24 pairs
@@ -62,9 +65,11 @@ CoRe-Fusion_datasets/
 
 - **PET–MRI / SPECT–MRI:** functional scans are pseudo-colour (metabolic/perfusion activity); the MRI is
   grayscale soft-tissue anatomy. All pairs are already co-registered in the source atlas.
-- **PET–CT:** exported from the TCIA Soft-Tissue-Sarcoma FDG-PET/CT volumes — tumour-containing axial
-  slices only, intensity-normalized (1–99 percentile) to 8-bit and resampled to 256×256. The included
-  56-slice test set is a patient-balanced subsample (≈8 slices from each of 7 patients).
+- **PET–CT:** exported from the TCIA Soft-Tissue-Sarcoma FDG-PET/CT volumes — **all** tumour-containing
+  axial slices from the 7 patients that have co-registered PET, CT and tumour labels (205 slices total),
+  intensity-normalized (1–99 percentile) to 8-bit and resampled to 256×256. These 205 slices are split
+  into `test/` (the paper's patient-balanced 56-slice subsample, ≈8 per patient) and `train/` (the
+  remaining 149 slices).
 
 ## Sources and citations
 
